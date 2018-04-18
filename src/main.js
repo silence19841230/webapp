@@ -6,6 +6,11 @@ import App from './App'
 import Log from "./js/log";
 import Cookie from "./js/cookie";
 import Common from "./js/common";
+// import layer from './assets/libs/layer/layer'
+// import './assets/libs/layer/theme/default/layer.css'
+
+
+
 
 Vue.use(Vant);
 

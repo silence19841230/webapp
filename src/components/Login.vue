@@ -36,8 +36,8 @@
       <van-row><van-col offset="2" span="20" align="center"><van-button style="width: 160px;" type="primary" @click="login()">登录</van-button></van-col></van-row>
       <!--   v-bind:loading="loading" v-bind:disabled="loading"  -->
 
-
-    <!--</van-col>-->
+  <!--<iframe src="http://www.baidu.com" width="100%" height="20%" frameborder="1"  marginwidth="0" marginheight="0" scrolling="no"></iframe>-->
+  <!--</van-col>-->
     <!--<van-col span="4"></van-col>-->
   <!--</van-row>-->
 
@@ -59,8 +59,9 @@ import axios from "axios";
 import Common from "../js/common";
 import Cookie from "../js/cookie";
 
-
-
+// import jQuery from 'jquery'
+import layer from 'layui-layer'
+// import jQuery from '../js/jquery/1.12.4/jquery.min.js'
 
 export default {
   name: 'Login',
@@ -77,8 +78,23 @@ export default {
     to.meta.keepAlive = false; // 让 Course 不缓存
     next();
   },
+
   methods: {
     login: function () {
+
+
+      // this.$nextTick(function () {
+      //   layer.open({
+      //     type: 2,
+      //     title: 'layer mobile页',
+      //     shadeClose: true,
+      //     shade: 0.4,
+      //     maxmin: true,
+      //     area: ['380px', '90%'],
+      //     content: 'http://www.baidu.com' //iframe的url
+      //   });
+      // });
+
 
        var self = this;
        this.loading = false;

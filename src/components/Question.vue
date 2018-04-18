@@ -12,7 +12,7 @@
         <van-row>
           <van-col span="8" align="left">积分：{{$store.getters.status.jifen}}</van-col>
           <van-col span="8" align="center"><van-progress color="#f09000" :show-pivot="false" v-bind:percentage="time*5" style="width: 100%;margin-top: 8px;"/></van-col>
-          <van-col span="8" align="right">{{this.$store.getters.current+1}}/{{this.$store.getters.list.length}}</van-col>
+          <van-col span="8" align="right">{{$store.getters.status.current+1}}/{{total}}</van-col>
         </van-row>
 
         <div style="height: 10px;"></div>
@@ -20,8 +20,8 @@
         <div v-if="showTm">
 
           <van-row>
-            <van-col span="24" align="left"><van-tag type="primary" >第{{current+1}}题：</van-tag>【{{$store.getters.txing_cn(current)}}】</van-col>
-            <van-col span="24" align="left"><p class="p_well">{{$store.getters.list[current].tg}}</p></van-col>
+            <van-col span="24" align="left"><van-tag type="primary" >第{{$store.getters.status.current+1}}题：</van-tag>【{{$store.getters.txing_cn($store.getters.status.current)}}】</van-col>
+            <van-col span="24" align="left"><p class="p_well">{{$store.getters.list[$store.getters.status.current].tg}}</p></van-col>
           </van-row>
 
           <van-row>
@@ -49,10 +49,10 @@
 
               <!--</div>-->
 
-              <div v-if="$store.getters.list[current].txing ==='panduan'" >
+              <div v-if="$store.getters.list[$store.getters.status.current].txing ==='panduan'" >
                 <van-radio-group v-model="selected" ><!--@change="checkDa()"-->
-                  <van-radio name="A" class="radio_check_padding radio_check_heigth" v-bind:disabled="checkDaBoolean" @click="checkDa()">A、正确</van-radio>
-                  <van-radio name="B" class="radio_check_padding radio_check_heigth" v-bind:disabled="checkDaBoolean" @click="checkDa()">B、错误</van-radio>
+                  <van-radio name="A" class="radio_check_padding radio_check_heigth" v-bind:disabled="$store.getters.list[$store.getters.status.current].checkDaBoolean" @click="checkDa()">A、正确</van-radio>
+                  <van-radio name="B" class="radio_check_padding radio_check_heigth" v-bind:disabled="$store.getters.list[$store.getters.status.current].checkDaBoolean" @click="checkDa()">B、错误</van-radio>
                 </van-radio-group>
               </div>
 
@@ -61,16 +61,16 @@
 
           <div style="height: 10px;"></div>
 
-          <div v-if="checkDaBoolean">
+          <div v-if="$store.getters.list[$store.getters.status.current].checkDaBoolean">
             <van-row>
               <van-col>
 
-                <div v-show="$store.getters.list[current].da_result">
+                <div v-show="$store.getters.list[$store.getters.status.current].da_result">
                   <span class="span_right">回答正确！</span>
                 </div>
 
-                <div v-show="!$store.getters.list[current].da_result">
-                  <span class="span_error">回答错误！</span>正确答案：{{$store.getters.list[current].da}}
+                <div v-show="!$store.getters.list[$store.getters.status.current].da_result">
+                  <span class="span_error">回答错误！</span>正确答案：{{$store.getters.list[$store.getters.status.current].da}}
                 </div>
 
               </van-col>
@@ -83,13 +83,19 @@
             <!--</van-row>-->
           </div>
 
+          <!--<div style="height: 10px;"></div>-->
+          <!--<van-row>-->
+          <!--<van-col offset="8" span="8" align="center"><van-button  @click="last()" size="small" type="danger">上一题</van-button></van-col>-->
+          <!--<van-col offset="8" span="8" align="center"><van-button  @click="next()" size="small" type="danger">下一题</van-button></van-col>-->
+          <!--</van-row>-->
+
         </div>
 
 
         <div v-if="showPercent" >
 
-          <van-row><van-col>答对：{{totalRightCount}}</van-col></van-row>
-          <van-row><van-col><div v-if="totalRightCount>=6">真棒！继续努力！</div></van-col></van-row>
+          <van-row><van-col>答对：{{$store.getters.status.totalRightCount}}</van-col></van-row>
+          <van-row><van-col><div v-if="$store.getters.status.totalRightCount>=6">真棒！继续努力！</div></van-col></van-row>
           <van-row><van-col><van-button style="width: 160px;" type="primary" @click="toQuestionResult()">做题报告！</van-button></van-col></van-row>
 
 
@@ -153,12 +159,12 @@
     data(){
       return {
         time: 20,
-        // current:0,
+        current:this.$store.getters.status.current,
         // total:2,
-        // total:this.$store.getters.list.length,
+        total:this.$store.getters.list.length,
 
         disabled:false,
-        checkDaBoolean:false,
+        // checkDaBoolean:false,
         nextBoolean:false,
         danxuanCheck:false,
 
@@ -173,7 +179,7 @@
           // Log.i("get:this.$store.getters.list[this.current].selected:"+this.$store.getters.list[this.current].selected);
           var ret ;
           // if(!typeof(this.$store.getters.list[this.current].selected)=="undefined"){
-            ret = this.$store.getters.list[this.current].selected;
+            ret = this.$store.getters.list[this.$store.getters.status.current].selected;
           // }else{
           //   ret = '';
           // }
@@ -181,10 +187,7 @@
 
         },
         set (value) {
-          var obj = {};
-          obj.current = this.current;
-          obj.value = value;
-          this.$store.dispatch('setListQuestionSelected', obj)
+          this.$store.dispatch('setListQuestionSelected', value)
         }
       }
     }
@@ -213,7 +216,8 @@
 
       getQuestions: function () {
 
-        if(this.$store.getters.list.length < 1){
+        if(this.$store.getters.list.length < 2){
+          Log.i("重新获取数据！");
           axios({
             method: Common.method_post,
             url: Common.baseUrl + '/course/catalog/content/questions',
@@ -232,16 +236,16 @@
               }
             },
           })
-            .then(function (response) {
-              if(response.data.ok == true) {
-                tm_app.$store.commit('setList',response.data.data.list);
-                tm_app.initJifen();
-              }
+          .then(function (response) {
+            if(response.data.ok == true) {
+              tm_app.$store.commit('setList',response.data.data.list);
+              tm_app.initJifen();
+            }
 
-            })
-            .catch(function (response) {
-              Log.e("Question:"+response);
-            });
+          })
+          .catch(function (response) {
+            Log.e("Question:"+response);
+          });
         }else{
           tm_app.initJifen();
         }
@@ -287,17 +291,22 @@
 
       },
 
+      last: function () {
+        tm_app.$store.commit('decCurrent');
+      },
+
       next: function () {
 
         clearInterval(timerDownFlag);
         clearInterval(timerDownFlagDa)
 
-        if (tm_app.current + 1 == tm_app.total) {
+        if (this.$store.getters.status.current + 1 >= tm_app.total) {
           tm_app.showPercent = true;
           tm_app.showTm = false;
           return;
         }
-        tm_app.current++;
+        // tm_app.current++;
+        tm_app.$store.commit('increaseCurrent');
         tm_app.initJifen();
       }
 
@@ -324,14 +333,11 @@
 
       initJifen: function () {
 
-        this.da_result = false,
-
         this.disabled = false;
         this.checkDaBoolean = false;
 
         this.nextBoolean = false;
         this.danxuanCheck = false;
-        // this.selected = [];
 
         this.timerDown();
       }

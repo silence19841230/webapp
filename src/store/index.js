@@ -33,7 +33,9 @@ const store = new Vuex.Store({
         "tg": "会计是随着人类社会生产的发展和经济管理的需要而产生、发展并不断得到完善。其中，会计的发展可划分为（    ）阶段。",
         "txi": "题目解析: 会计是随着人类社会生产的发展和经济管理的需要而产生、发展并不断得到完善。其中，会计的发展可划分为古代会计、近代会计和现代会计三个阶段。",
         "isReaded": false,
-        "isCollection": 0
+        "isCollection": 0,
+        checkDaBoolean:false
+
       }
     ],
 
@@ -56,7 +58,7 @@ const store = new Vuex.Store({
       return state.list.length;
     },
     txing_cn:(state)=>(index)=>{
-      var txing = state.list[index]["txing"];
+      var txing = state.list[index].txing;
 
       if(txing === TXING_DANXUAN){
         return TXING_DANXUAN_CN;
@@ -106,13 +108,13 @@ const store = new Vuex.Store({
       state.list = list;
     },
 
-    setListQuestionSelected (state, obj) {
-      state.list[obj.current].selected = obj.value;
+    setListQuestionSelected (state, selected) {
+      state.list[state.status.current].selected = selected;
 
       // console.log("get:setListQuestionSelected1:"+obj.value );
 
-      var src_obj = obj.value;
-      var target_obj = state.list[obj.current].da;
+      var src_obj = selected;
+      var target_obj = state.list[state.status.current].da;
 
       var src_obj_array = new Array();
       var target_obj_array = new Array();
@@ -130,7 +132,8 @@ const store = new Vuex.Store({
       }
 
       var result  =  src_obj_array.sort().toString() === target_obj_array.sort().toString();
-      state.list[obj.current].da_result  = result;
+      state.list[state.status.current].da_result  = result;
+      state.list[state.status.current].checkDaBoolean = true;
 
       if(result == true){
         state.status.jifen +=10;
@@ -138,10 +141,23 @@ const store = new Vuex.Store({
       }
 
     },
-    setCheckDaBoolean(state,checkDaBoolean){
-      state.status["checkDaBoolean"] = checkDaBoolean;
-    }
+    increaseCurrent(state){
+      state.status.current++;
+      if(state.status.current >= state.list.length-1){
+        state.status.current = state.list.length-1;
+      }
 
+    },
+    decCurrent(state){
+      state.status.current--;
+      if(state.status.current <=0){
+        state.status.current  = 0;
+      }
+
+    },
+    setCheckDaBoolean(state,checkDaBoolean){
+      state.list[state.status.current].checkDaBoolean = checkDaBoolean;
+    }
   }
   ,
 
@@ -150,11 +166,17 @@ const store = new Vuex.Store({
     setList ({ commit },list) {
       commit('setList',list)
     },
-    setCheckDaBoolean({ commit },checkDaBoolean){
-      commit('setCheckDaBoolean',checkDaBoolean);
-    },
     setListQuestionSelected ({ commit }, obj) {
       commit('setListQuestionSelected',obj);
+    },
+    increaseCurrent ({ commit }) {
+      commit('increaseCurrent');
+    },
+    decCurrent ({ commit }) {
+      commit('increaseCurrent');
+    },
+    setCheckDaBoolean({ commit }, checkDaBoolean) {
+      commit('setCheckDaBoolean',checkDaBoolean);
     }
 
   }
