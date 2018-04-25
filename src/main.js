@@ -6,15 +6,15 @@ import App from './App'
 import Log from "./js/log";
 import Cookie from "./js/cookie";
 import Common from "./js/common";
-// import layer from './assets/libs/layer/layer'
-// import './assets/libs/layer/theme/default/layer.css'
+
 
 
 
 
 Vue.use(Vant);
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
+// 将axios挂载到prototype上，在组件中可以直接使用this.axios访问
 
 
 router.beforeEach((to, from, next) => {

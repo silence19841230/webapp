@@ -39,20 +39,31 @@
         </van-col>
       </van-row>
 
+      <!--弹出层-->
+      <van-popup v-model="show" :close-on-click-overlay="false">
+        <van-row>上次未完成，是否继续？</van-row>
+        <van-row>
+          <van-button size="small" type="primary" @click="goon()">继续做题</van-button>
+          <van-button size="small" type="danger" @click="redo()">重新开始</van-button>
+        </van-row>
+      </van-popup>
+
   </div>
 </template>
 
 <script>
-import axios from "axios";
 import Log from "../js/log";
 import Common from "../js/common";
 import Cookie from "../js/cookie";
-import store from '../store/index'
+import store from '../store/index';
+import api from '../js/api';
 
 
 export default {
+  store,
   data() {
     return {
+      show:this.$store.getters.list.length>1,
       //最近学习课程列表
       listRecently: ["近期学习..."],
       courses: [], //课程列表
@@ -63,7 +74,7 @@ export default {
       activeNames: ["1"] //
     };
   },
-  store,
+
   created() {
     // this.$store.state.questionstroe.list[0]["A"]="444444";
     // Log.i(this.$store.state.questionstroe.list[0]["A"]);
@@ -83,69 +94,58 @@ export default {
       //this.$router.go(-1);
       this.$router.push("/"); //返回登录页面
     },
+
+    goon(){
+      this.$router.push({ name: 'question'});
+    },
+    redo(){
+      this.$store.dispatch('setList',[]);
+      this.$store.dispatch('setStatus',{
+        jifen:0,
+        totalRightCount:0,
+        current:0
+      });
+      this.show = false;
+    },
     //获取课程列表
     getCourse() {
 
       var self = this;
-      axios({
-        method: Common.method_post,
-        url: Common.baseUrl + '/courses',
-        contentType: Common.contentType,
-        dataType: Common.dataType,
-        headers: Common.generAuthHeader(Cookie.getCookie(Common.cookie_key)),
-        data: {
-        lang: Common.lang,
-          agent: Common.agent,
-          intfVer: Common.intfVer,
-          payload: {
-          params: {
-              productId: Common.productId,
-              courseType: Common.courseType
-            }
-          }
+      var reqCourseParam = Common.generReqParam({
+        productId: Common.productId,
+        courseType: Common.courseType
+      });
+      api.getCourses(reqCourseParam)
+        .then(res => {Log.i(res);
+        if (res.ok == true) {
+          self.courses = res.data.list;
+          self.flag = true;
         }
       })
-        .then(function(response) {
-          // Log.i(response.data);
-          if (response.data.ok == true) {
-            self.courses = response.data.data.list;
-            self.flag = true;
-          }
-        })
-        .catch(function(error) {
-          Log.i("error:" + error);
-        });
+      .catch(error =>  {
+        Log.e("error:" + error);
+      });
+
+
     },
     //点击某一个课程，直接请求课程详情-获取章节列表
     selectCourse(index) {
       var self = this;
       var courseId = this.courses[index].id; //当前课程id
-      axios({
-        method: Common.method_post,
-        url: Common.baseUrl + '/course/catalogs',
-        contentType: Common.contentType,
-        dataType: Common.dataType,
-        headers:  Common.generAuthHeader(Cookie.getCookie(Common.cookie_key)),
-        data: {
-          lang: Common.lang,
-          agent: Common.agent,
-          intfVer: Common.intfVer,
-          payload: {
-            params: {
-              courseid: courseId
-            }
-          }
+
+      var reqCatalogsParam = Common.generReqParam({
+        courseid: courseId
+      });
+      api.getCatalogs(reqCatalogsParam)
+      .then(res => {
+        Log.i(res);
+        if (res.ok == true) {
+          self.chapters = res.data.list;
         }
       })
-        .then(function(response) {
-          // Log.i(response.data);
-          if (response.data.ok == true) {
-            self.chapters = response.data.data.list;
-          }
-        })
-        .catch(function(error) {
-          Log.i("error:" + error);
-        });
+      .catch(error =>  {
+        Log.e("error:" + error);
+      });
     },
     //点击某一个章节，直接请求章节详情-知识点
     selectChapter(item) {
@@ -157,33 +157,22 @@ export default {
       var self = this;
       var courseId = item.courseid;
       var catalogId = item.id;
-      axios({
-        method: Common.method_post,
-        url: Common.baseUrl + '/course/catalog/contents',
-        contentType: Common.contentType,
-        dataType: Common.dataType,
-        headers: Common.generAuthHeader(Cookie.getCookie(Common.cookie_key)),
-        data: {
-          lang: Common.lang,
-          agent: Common.agent,
-          intfVer: Common.intfVer,
-          payload: {
-            params: {
-              courseid: courseId,
-              catalogid: catalogId
-            }
-          }
+
+      var reqContentsParam = Common.generReqParam({
+        courseid: courseId,
+        catalogid: catalogId
+      });
+
+      api.getContents(reqContentsParam)
+      .then(res =>  {
+        Log.i(res);
+        if (res.ok == true) {
+          self.contents = res.data.list;
         }
       })
-        .then(function(response) {
-          // Log.i(response.data);
-          if (response.data.ok == true) {
-            self.contents = response.data.data.list;
-          }
-        })
-        .catch(function(error) {
-          Log.i("error:" + error);
-        });
+      .catch(error =>  {
+        Log.e("error:" + error);
+      });
     },
     //点击某一个知识点
     selectContents(item) {

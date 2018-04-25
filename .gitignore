@@ -4,7 +4,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 /node_modules/
-/dist/
+#/dist/
 # Editor directories and files
 .idea
 .vscode
@@ -13,3 +13,5 @@ yarn-error.log*
 *.njsproj
 *.sln
 
+/dist/
+/build/

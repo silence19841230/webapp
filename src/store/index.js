@@ -5,7 +5,7 @@ Vue.use(Vuex)
 
 
 vuexAlong.watch(['list'],true);
-vuexAlong.watchSession(['status'],true);
+vuexAlong.watch(['status'],true);
 
 var TXING_DANXUAN = "danxuan";
 var TXING_DUOXUAN = "duoxuan";
@@ -108,6 +108,10 @@ const store = new Vuex.Store({
       state.list = list;
     },
 
+    setStatus (state, status) {
+      state.status = status;
+    },
+
     setListQuestionSelected (state, selected) {
       state.list[state.status.current].selected = selected;
 
@@ -165,6 +169,9 @@ const store = new Vuex.Store({
 
     setList ({ commit },list) {
       commit('setList',list)
+    },
+    setStatus ({ commit },status) {
+      commit('setStatus',status)
     },
     setListQuestionSelected ({ commit }, obj) {
       commit('setListQuestionSelected',obj);

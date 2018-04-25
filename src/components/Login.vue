@@ -56,12 +56,12 @@
 
 
 import axios from "axios";
-import Common from "../js/common";
-import Cookie from "../js/cookie";
+import common from "../js/common";
+import cookie from "../js/cookie";
+import api from '../js/api'
+import log from '../js/log'
 
-// import jQuery from 'jquery'
 import layer from 'layui-layer'
-// import jQuery from '../js/jquery/1.12.4/jquery.min.js'
 
 export default {
   name: 'Login',
@@ -84,48 +84,50 @@ export default {
 
 
       // this.$nextTick(function () {
+      //   // layer.open({
+      //   //   type: 2,
+      //   //   title: 'layer mobile页',
+      //   //   shadeClose: true,
+      //   //   shade: 0.4,
+      //   //   maxmin: true,
+      //   //   area: ['380px', '90%'],
+      //   //   content: 'http://www.baidu.com' //iframe的url
+      //   // });
+      //
+      //
       //   layer.open({
       //     type: 2,
-      //     title: 'layer mobile页',
+      //     title: 'a',
+      //     area: ['800px', '600px'],
+      //     shade: 0.8,
+      //     closeBtn: 0,
       //     shadeClose: true,
-      //     shade: 0.4,
-      //     maxmin: true,
-      //     area: ['380px', '90%'],
-      //     content: 'http://www.baidu.com' //iframe的url
+      //     moveOut:true,
+      //     content: 'http://statics.xmkeyun.com.cn/20180228.mp4'
       //   });
       // });
 
 
        var self = this;
        this.loading = false;
-       axios({
-          method: Common.method_post,
-          url: Common.baseUrl+'/token',
-          contentType: Common.contentType,
-          dataType:Common.dataType,
-          data : {
-                lang: Common.lang,
-                agent: Common.agent,
-                intfVer: Common.intfVer,
-                payload: {
-                    params: {
-                        username:this.username,
-                        password:this.password
-                    }
-                }
-          },
-        })
-        .then(function (response) {
-          self.loading = true;
-          if(response.data.ok){
-              Cookie.setCookie(Common.cookie_key,response.data.data.token,Common.cookie_seconds);
-              self.$router.push("/course");
-          }
 
-        })
-        .catch(function (response) {
-          console.log(response);
+       var reqParam = common.generReqParam({
+         username:this.username,
+         password:this.password
+       });
+
+        api.login(reqParam).then(res => {
+          log.i(res)
+          if(res.ok) {
+              if(res.ok){
+                  cookie.setCookie(common.cookie_key,res.data.token,common.cookie_seconds);
+                  self.$router.push("/course");
+              }
+          }
+        }).catch(error => {
+          log.e(error)
         });
+
 
     }
   }

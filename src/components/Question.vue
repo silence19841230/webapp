@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div v-if="loaded" >
     <van-nav-bar title="财务课程" left-text="" left-arrow @click-left="onClickLeft"/>
 
     <div style="height: 10px;"></div>
@@ -116,13 +116,13 @@
 
 <script>
 
-  import axios from "axios";
   import Common from "../js/common";
   import Log from "../js/log";
   import Cookie from "../js/cookie";
   import store from '../store/index';
+  import api from '../js/api'
 
-  import { mapGetters, mapActions } from 'vuex'
+  // import { mapGetters, mapActions } from 'vuex'
 
 
   var timerDownFlagDa;
@@ -158,6 +158,7 @@
     name: 'Question',
     data(){
       return {
+        loaded:false,
         time: 20,
         current:this.$store.getters.status.current,
         // total:2,
@@ -217,36 +218,29 @@
       getQuestions: function () {
 
         if(this.$store.getters.list.length < 2){
+
+          var reqQuestionParam = Common.generReqParam({
+            productId: Common.productId,
+            contentId:this.$route.query.contentId
+          });
+
+
+
           Log.i("重新获取数据！");
-          axios({
-            method: Common.method_post,
-            url: Common.baseUrl + '/course/catalog/content/questions',
-            contentType: Common.contentType,
-            dataType: Common.dataType,
-            headers: Common.generAuthHeader(Cookie.getCookie(Common.cookie_key)),
-            data: {
-              lang: Common.lang,
-              agent: Common.agent,
-              intfVer: Common.intfVer,
-              payload: {
-                params: {
-                  productId: Common.productId,
-                  contentId:this.$route.query.contentId
-                }
-              }
-            },
-          })
-          .then(function (response) {
-            if(response.data.ok == true) {
-              tm_app.$store.commit('setList',response.data.data.list);
+          api.getQuestions(reqQuestionParam)
+          .then(function (res) {
+            tm_app.loaded = true;
+            if(res.ok == true) {
+              tm_app.$store.commit('setList',res.data.list);
               tm_app.initJifen();
             }
 
           })
-          .catch(function (response) {
-            Log.e("Question:"+response);
+          .catch(function (res) {
+            Log.e("Question:"+res);
           });
         }else{
+          tm_app.loaded = true;
           tm_app.initJifen();
         }
 
@@ -332,6 +326,10 @@
       },
 
       initJifen: function () {
+
+        this.$forceUpdate();
+
+        this.total = this.$store.getters.list.length,
 
         this.disabled = false;
         this.checkDaBoolean = false;

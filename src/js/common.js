@@ -15,12 +15,21 @@ export default {
   service: "",
   lang: 'zh-CN',
   agent: 'web',
-  dataType:'json',
   method_post:"post",
   method_get:"get",
-  contentType:"application/json; charset=utf-8",
 
   generAuthHeader:function(token){
-    return {"X-AUTH-TOKEN":token};
+    return {'Content-Type':'application/json;charset=UTF-8','X-AUTH-TOKEN':token};
+  },
+
+  generReqParam(payloadParams){
+    return  {
+      lang: this.lang,
+      agent: this.agent,
+      intfVer: this.intfVer,
+      payload: {
+        params: payloadParams
+      }
+    }
   }
 }
